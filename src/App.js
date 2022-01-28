@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react';
+import List from './components/List/List';
+import Details from './components/Details/Details';
+import useFetch from './useFetch';
 
 function App() {
+  const [listItems, setListItems] = useState([]);
+  const [info, setInfo] = useState({ id: '', name: '' })
+  const { get, loading } = useFetch('https://raw.githubusercontent.com/netology-code/ra16-homeworks/master/hooks-context/use-effect/data/');
+
+  useEffect(() => {
+    get('users.json')
+        .then((data) => setListItems(data))
+        .catch((error) => console.error(error));
+  }, []);
+
+  function handleItemClick({ target }) {
+    const id = target.closest('.List__item').id;
+
+    setInfo({ id: id, name: target.textContent });
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <>
+        <List onItemClick={handleItemClick} loading={loading}>
+          {listItems}
+        </List>
+        {info.id !== '' && <Details {...info} get={get} />}
+      </>
   );
 }
 
